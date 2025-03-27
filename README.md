@@ -35,6 +35,7 @@ This project implements a full real-time data streaming architecture using Micro
 | **Real-Time Alerts**        | 🚨 **Microsoft Fabric Data Activator** | Executes alert queries every 5 minute. Sends real-time email alerts when extreme weather is detected. Prevents duplication using logic for recent triggers.   |
 
 ## Implementation Steps
+
 ### Step 1: Setting Up Azure Environment
 
 Established the foundational infrastructure to support an end-to-end real-time data streaming pipeline:
@@ -54,13 +55,12 @@ Established the foundational infrastructure to support an end-to-end real-time d
 Azure Key Vault was used to securely manage sensitive secrets such as API keys and connection strings, enabling password-less authentication across compute services:
 
 - Granted access using:
-  - **Service Principal** for Azure Databricks
+  - **Service Principal** for Azure Databricks  
   - **Managed Identity** for Azure Function App
 - Created and stored the required secrets (e.g., API keys, connection strings).
 - Configured each service to securely retrieve secrets from the vault—ensuring no credentials were hardcoded into code or notebooks.
 
 This setup enabled secure, scalable secret management that adheres to cloud security best practices.
-
 
 
 ### Step 3: Streaming Ingestion with Azure Databricks
@@ -73,8 +73,46 @@ Azure Databricks was leveraged to prototype and validate the initial ingestion l
 - Explored and validated the incoming data structure within notebooks.
 - Streamed transformed weather data into **Azure Event Hub** at **30-second intervals**.
 
-This flexible environment enabled validation of the pipeline design before transitioning to a lightweight Azure Functions setup for the same ingestion purpose, chosen for its potential cost-effectiveness.
+This environment was used to validate the ingestion pipeline before implementing the same logic using Azure Functions for comparison in cost and deployment approach.
 
+
+### Step 4: Implementing Lightweight Ingestion with Azure Function
+
+A streamlined ingestion approach was built using a Python-based Azure Function App with a **30-second timer trigger**, offering a lightweight and scalable alternative to Databricks:
+
+- Reused the same ingestion logic to fetch weather data (e.g., current conditions, 3-day forecasts, alerts, air quality index).
+- Developed and deployed the function using **Visual Studio Code** with Python & Azure Functions extensions.
+- Leveraged **Managed Identity** for secure access to secrets and Event Hub—configured previously in **Azure Key Vault**.
+- Validated end-to-end data flow by monitoring real-time events in **Event Hub Data Explorer**.
+
+This solution was implemented to execute the same ingestion logic as Databricks, enabling a direct comparison of cost and architecture approaches.
+
+### Step 5: Evaluating Cost
+
+A cost and architectural comparison was conducted to determine the most suitable ingestion approach for the pipeline. Both **Azure Databricks** and **Azure Function App** were assessed based on pricing, complexity, and workload suitability:
+
+| Criteria          | Azure Databricks                      | Azure Function App                                   |
+|-------------------|----------------------------------------|------------------------------------------------------|
+| Monthly Cost    | ~958 NZD/month (DS3 v2 cluster)        | 0 NZD (within 1M executions/month free)              |
+| Trigger Type    | Spark Structured Streaming              | Timer Trigger (every 30 seconds)                     |
+| Complexity       | Requires cluster + Spark setup         | Simple Python script with built-in timer             |
+| Ideal For       | High-volume, large-scale workloads     | Lightweight, API-based pipelines                     |
+
+>  *Cost estimates were calculated using the [Azure Pricing Calculator](https://azure.microsoft.com/en-us/pricing/calculator/).*
+
+**Decision**: Azure Function App was selected for continued use due to its simpler architecture and significantly lower cost for this scenario.
+
+### Step 6: Processing and Loading with Microsoft Fabric
+
+Microsoft Fabric was used to process and route streaming data from Azure Event Hub into a real-time analytics database using its **Event Stream** and **Kusto DB** components:
+
+- Created a new **Microsoft Fabric workspace** to host all streaming and reporting assets.
+- Set up an **Event Stream pipeline** to receive weather events from Azure Event Hub.
+- Configured the stream to load data into an **auto-generated Kusto DB** (Real-Time Analytics database).
+- Enabled **Event Processing Before Ingestion** to automatically create the target table schema.
+- Verified real-time data flow by inspecting live previews and monitoring row count updates in the Kusto table.
+
+This setup enabled seamless integration of live data into Microsoft Fabric, laying the foundation for real-time reporting and alerting in the next steps.
 
 
 
