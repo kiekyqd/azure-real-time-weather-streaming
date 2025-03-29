@@ -102,23 +102,79 @@ A cost and architectural comparison was conducted to determine the most suitable
 
 **Decision**: Azure Function App was selected for continued use due to its simpler architecture and significantly lower cost for this scenario.
 
-### Step 6: Processing and Loading with Microsoft Fabric
+### Step 6: Processing and Loading Data with Microsoft Fabric
 
-Microsoft Fabric was used to process and route streaming data from Azure Event Hub into a real-time analytics database using its **Event Stream** and **Kusto DB** components:
+Microsoft Fabric was used to ingest and store real-time weather data for downstream analytics. The pipeline connects **Azure Event Hub** as the streaming source to a **Kusto DB** destination using Fabric’s Event Stream feature:
 
-- Created a new **Microsoft Fabric workspace** to host all streaming and reporting assets.
-- Set up an **Event Stream pipeline** to receive weather events from Azure Event Hub.
-- Configured the stream to load data into an **auto-generated Kusto DB** (Real-Time Analytics database).
-- Enabled **Event Processing Before Ingestion** to automatically create the target table schema.
-- Verified real-time data flow by inspecting live previews and monitoring row count updates in the Kusto table.
+- Created a dedicated **Fabric workspace** to manage project assets.
+- Set up an **Eventhouse**, which automatically provisioned a **Kusto (KQL) database** for real-time analytics.
+- Created an **Event Stream pipeline** to connect Azure Event Hub (configured with shared access policy) to the KQL database.
+- Selected **JSON** as the data format and used **“Event Processing Before Ingestion”** mode to automatically generate the KQL destination table.
+- Published the stream pipeline to begin ingesting and storing weather data in real time.
+- Verified data flow by previewing the records and row count within the KQL table.
 
-This setup enabled seamless integration of live data into Microsoft Fabric, laying the foundation for real-time reporting and alerting in the next steps.
+This integration enabled seamless ingestion of real-time weather data into Fabric's analytics engine, forming the basis for live reporting and alerting.
 
+### Step 7: Visualizing Real-Time Data with Power BI
 
+Power BI was used to build weather reporting dashboards powered by real-time data stored in the KQL database. Two approaches were explored—**Power BI Desktop (Import Mode)** for flexibility and **Power BI Online (Direct Query)** for live updates:
 
+- Connected Power BI to the **Kusto DB** in Microsoft Fabric using the cluster URI and database/table name.
+- Imported weather data into Power BI Desktop to enable rich visuals, calculated columns, and layout customizations.
+- Designed a complete weather report, including:
+  - Current weather snapshot and forecast
+  - 3-day trends and condition icons
+  - Air quality interpretation using DAX
+- Created filtered datasets to support both historical and latest weather views.
+- Published the report to the Fabric workspace and configured scheduled data refresh.
 
+Additionally, Power BI Online was briefly used to demonstrate a **real-time dashboard** powered by direct query from KQL. While suitable for near real-time insights, customization options were more limited compared to Desktop.
 
+This step brought the pipeline's output to life, offering both dynamic and polished views into live weather conditions.
 
+### Step 8: Configuring Real-Time Alerts with Microsoft Fabric Data Activator
+
+To enable real-time weather alert notifications, Microsoft Fabric's **Data Activator** was integrated with the streaming pipeline:
+
+- Created a dedicated **KQL Query Set** to detect weather alerts from the ingested data.
+- Wrote KQL logic to check for non-empty alert fields, extract alert values, and apply timestamp-based filtering to avoid duplicate notifications.
+- Configured **Data Activator** to automatically evaluate the query every 5 minutes.
+- Set up email notifications triggered by query results when new alerts are identified.
+- Verified functionality by injecting test events into **Azure Event Hub** and observing alert delivery.
+
+This setup enabled automatic email alerts when extreme weather conditions are detected—enhancing the pipeline’s responsiveness to real-time data.
+
+### Step 9: Testing the End-to-End Pipeline
+
+A final test was conducted to validate the complete real-time streaming pipeline from ingestion to visualization and alerting:
+
+- Temporarily stopped the **Azure Function App** to simulate a data flow interruption.
+- Observed that the **Power BI dashboard** stopped updating, confirming real-time dependency.
+- Restarted the Function App and verified end-to-end data flow:
+  - Weather data resumed streaming to **Azure Event Hub**.
+  - **KQL database** in Microsoft Fabric reflected the new records.
+  - **Power BI** visuals auto-refreshed with the updated data.
+- Confirmed that **email alerts** were triggered appropriately when test alert conditions were met.
+
+This test validated the pipeline’s reliability and confirmed smooth integration across all components—from API ingestion to live dashboards and real-time alerts.
+
+## Learning & Inspiration
+
+I followed the methodology and step-by-step guidance from **[Mr. K Talks Tech](https://www.youtube.com/watch?v=TIjgNlkvqxI&t=29s)**, adapting his approach to build my own end-to-end real-time data pipeline using Microsoft Azure and Microsoft Fabric.
+
+Through this hands-on project, I gained practical experience with key Azure services, including **Azure Event Hub**, **Databricks**, **Azure Function App**, **Azure Key Vault**, **Microsoft Fabric** (Event Stream & Kusto DB), **Power BI** (Desktop & Online), and **Data Activator** for real-time alerting.
+
+This journey enhanced my understanding of **cloud-based streaming architectures**, **secure credential management**, **cost optimization**, and **real-time analytics**—while shaping the solution to reflect real-world data engineering workflows.
+
+## Project Summary & Conclusion
+
+This project showcases a complete real-time streaming data pipeline built with Azure and Microsoft Fabric—covering ingestion, transformation, storage, reporting, and real-time alerting.
+
+By simulating continuous weather data and integrating key services like Event Hub, Databricks, Azure Functions, Power BI, and Data Activator, I gained hands-on experience designing and implementing modern data workflows.
+
+Throughout the process, I focused on security best practices, cost-effective architecture choices, and real-time responsiveness—aligning the solution with real-world data engineering needs.
+
+This has been a valuable opportunity to deepen my skills in cloud-based data systems and build a solution that’s both practical and production-ready.
 
 
 
