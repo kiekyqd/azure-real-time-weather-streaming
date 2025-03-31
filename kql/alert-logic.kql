@@ -1,0 +1,13 @@
+// Get the latest alert per alert value from the weather-table
+['weather-table']
+| where alerts != '[]'  // Filter for records where an alert condition exists
+| extend AlertValue = tostring(alerts)  // Convert alerts array to a string
+| summarize LastTriggered = max(EventProcessedUtcTime) by AlertValue
+| join kind=leftanti (
+    ['weather-table']
+    | where alerts != '[]'
+    | extend AlertValue = tostring(alerts)
+    | summarize LastTriggered = max(EventProcessedUtcTime) by AlertValue
+    | where LastTriggered < ago(5m)
+) on AlertValue
+
