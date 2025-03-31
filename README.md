@@ -99,6 +99,7 @@ A cost and architectural comparison was conducted to determine the most suitable
 | Ideal For       | High-volume, large-scale workloads     | Lightweight, API-based pipelines                     |
 
 >  *Cost estimates were calculated using the [Azure Pricing Calculator](https://azure.microsoft.com/en-us/pricing/calculator/).*
+> ![cost analysis](https://github.com/user-attachments/assets/02c4bb62-29fa-4ac6-98d2-07213b13bb40)
 
 **Decision**: Azure Function App was selected for continued use due to its simpler architecture and significantly lower cost for this scenario.
 
@@ -109,9 +110,14 @@ Microsoft Fabric was used to ingest and store real-time weather data for downstr
 - Created a dedicated **Fabric workspace** to manage project assets.
 - Set up an **Eventhouse**, which automatically provisioned a **Kusto (KQL) database** for real-time analytics.
 - Created an **Event Stream pipeline** to connect Azure Event Hub (configured with shared access policy) to the KQL database.
+ ![event-stream](https://github.com/user-attachments/assets/b82df29a-a2bc-4b25-9ec1-68a20b8c5ec8)
+
 - Selected **JSON** as the data format and used **“Event Processing Before Ingestion”** mode to automatically generate the KQL destination table.
 - Published the stream pipeline to begin ingesting and storing weather data in real time.
 - Verified data flow by previewing the records and row count within the KQL table.
+![count1](https://github.com/user-attachments/assets/503956fb-bb1d-4222-a973-519805ae3d4b)
+
+![count2](https://github.com/user-attachments/assets/5781964f-6711-4cc9-a363-c4a77293025d)
 
 This integration enabled seamless ingestion of real-time weather data into Fabric's analytics engine, forming the basis for live reporting and alerting.
 
@@ -126,8 +132,15 @@ Power BI was used to build weather reporting dashboards powered by real-time dat
   - 3-day trends and condition icons
   - Air quality interpretation using DAX
 - Created filtered datasets to support both historical and latest weather views.
+  
+  ![powerbi1](https://github.com/user-attachments/assets/2b04195a-9450-4df2-8666-f84c54182d6e)
+  ![powerbi2](https://github.com/user-attachments/assets/27110ed7-6ce3-4493-b242-c3cb912f7f12)
+ 
 - Published the report to the Fabric workspace and configured scheduled data refresh.
+  
+  ![uploaded-powerbi](https://github.com/user-attachments/assets/4acb2322-69cf-46e0-b517-62da79a09b24)
 
+  
 Additionally, Power BI Online was briefly used to demonstrate a **real-time dashboard** powered by direct query from KQL. While suitable for near real-time insights, customization options were more limited compared to Desktop.
 
 This step brought the pipeline's output to life, offering both dynamic and polished views into live weather conditions.
@@ -138,10 +151,14 @@ To enable real-time weather alert notifications, Microsoft Fabric's **Data Activ
 
 - Created a dedicated **KQL Query Set** to detect weather alerts from the ingested data.
 - Wrote KQL logic to check for non-empty alert fields, extract alert values, and apply timestamp-based filtering to avoid duplicate notifications.
+![logic](https://github.com/user-attachments/assets/5fd6ad8f-b64e-42c8-85e6-cfaee5c946ac)
+  
 - Configured **Data Activator** to automatically evaluate the query every 5 minutes.
 - Set up email notifications triggered by query results when new alerts are identified.
 - Verified functionality by injecting test events into **Azure Event Hub** and observing alert delivery.
+<img src="https://github.com/user-attachments/assets/3aa78b6b-cfb9-4db4-a0c6-f7977bee8b13" alt="test alert" width="50%" />
 
+  
 This setup enabled automatic email alerts when extreme weather conditions are detected—enhancing the pipeline’s responsiveness to real-time data.
 
 ### Step 9: Testing the End-to-End Pipeline
@@ -155,6 +172,10 @@ A final test was conducted to validate the complete real-time streaming pipeline
   - **KQL database** in Microsoft Fabric reflected the new records.
   - **Power BI** visuals auto-refreshed with the updated data.
 - Confirmed that **email alerts** were triggered appropriately when test alert conditions were met.
+  
+![alert1](https://github.com/user-attachments/assets/876377b8-c2a6-42e5-85cd-3e08e3f89685)
+
+![alert3](https://github.com/user-attachments/assets/5c8691fb-feb7-4f48-b025-1b258872a590)
 
 This test validated the pipeline’s reliability and confirmed smooth integration across all components—from API ingestion to live dashboards and real-time alerts.
 
