@@ -16,6 +16,8 @@ By completing this project, I built a fully automated real-time data pipeline th
 
 ## Architecture & Technology Overview
 
+![diagram](https://github.com/user-attachments/assets/c64c5c12-8bd9-4aa1-b919-3bd8428fb8f2)
+
 This project implements a full real-time data streaming architecture using Microsoft Azure and Microsoft Fabric. The system fetches weather data every 30 seconds, processes it, and delivers insights and alerts through dashboards and automated email notifications.
 
 | **Stage**                    | **Technology/Service**                | **Purpose & Function**                                                                                                                                         |
